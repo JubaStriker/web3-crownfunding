@@ -53,9 +53,28 @@ contract CrowdFunding {
 
         campaign.donations.push(amount);
         campaign.donators.push(msg.sender);
+
+        (bool sent, ) = payable(campaign.owner).call{value: amount}("");
+
+        if (sent) {
+            campaign.amountCollected = campaign.amountCollected + amount;
+        }
     }
 
-    function getDonators() {}
+    function getDonators(
+        uint256 _id
+    ) public view returns (address[] memory, uint256[] memory) {
+        return (campaigns[_id].donators, campaigns[_id].donations);
+    }
 
-    function getCampaigns() {}
+    function getCampaigns() public view returns (Campaign[] memory) {
+        Campaign[] memory allCampaigns = new Campaign[](numberOfCampaigns);
+
+        for (uint i = 0; i < numberOfCampaigns; i++) {
+            Campaign storage item = campaigns[i];
+
+            allCampaigns[i] = item;
+        }
+        return allCampaigns;
+    }
 }
